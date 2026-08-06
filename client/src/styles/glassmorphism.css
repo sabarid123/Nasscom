@@ -1,0 +1,72 @@
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.45);
+}
+
+.glass-nav {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.glass-input {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  color: var(--text-main);
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-main);
+  border-color: var(--primary-accent);
+  box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+  outline: none;
+}
+
+.btn-primary-gradient {
+  background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-primary-gradient:hover {
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+  transform: scale(1.02);
+}
+
+.btn-success-gradient {
+  background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+}
+
+.btn-danger-gradient {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  border: none;
+  color: #ffffff;
+  font-weight: 600;
+  border-radius: 10px;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
+}
