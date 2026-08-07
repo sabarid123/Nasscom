@@ -39,14 +39,10 @@ class TradeService {
 
     try {
       // 1. Fetch user & stock
-      const user = session
-        ? await userRepository.findById(userId).session(session)
-        : await userRepository.findById(userId);
+      const user = await userRepository.findById(userId, session);
       if (!user) throw new ApiError(404, 'User not found');
 
-      const stock = session
-        ? await stockRepository.findById(stockId).session(session)
-        : await stockRepository.findById(stockId);
+      const stock = await stockRepository.findById(stockId, session);
       if (!stock) throw new ApiError(404, 'Stock not found');
 
       const totalCost = Number((stock.currentPrice * qty).toFixed(2));
@@ -154,14 +150,10 @@ class TradeService {
 
     try {
       // 1. Fetch stock & user portfolio
-      const user = session
-        ? await userRepository.findById(userId).session(session)
-        : await userRepository.findById(userId);
+      const user = await userRepository.findById(userId, session);
       if (!user) throw new ApiError(404, 'User not found');
 
-      const stock = session
-        ? await stockRepository.findById(stockId).session(session)
-        : await stockRepository.findById(stockId);
+      const stock = await stockRepository.findById(stockId, session);
       if (!stock) throw new ApiError(404, 'Stock not found');
 
       const portfolio = await portfolioRepository.findByUserId(userId);

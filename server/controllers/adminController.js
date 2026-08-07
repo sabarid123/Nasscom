@@ -107,6 +107,30 @@ class AdminController {
       next(error);
     }
   }
+  async exportUsersCSV(req, res, next) {
+    try {
+      const { users } = await userRepository.findAll({}, 1, 10000);
+      const csvData = users.map((u) => ({
+        UserID: u._id,
+        Name: u.name,
+        Email: u.email,
+        Role: u.role,
+        WalletBalance: u.walletBalance,
+        Status: u.status,
+        JoinedDate: u.createdAt,
+      }));
+
+      const fields = ['UserID', 'Name', 'Email', 'Role', 'WalletBalance', 'Status', 'JoinedDate'];
+      const csv = exportToCSV(csvData, fields);
+
+      res.header('Content-Type', 'text/csv');
+      res.attachment('system_users_report.csv');
+      return res.send(csv);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async deleteTransaction(req, res, next) {
     try {
       await transactionRepository.deleteById(req.params.id);

@@ -78,10 +78,12 @@ class UserRepository {
     return memUser || null;
   }
 
-  async findById(id) {
+  async findById(id, session = null) {
     if (mongoose.connection.readyState === 1) {
       try {
-        const dbUser = await User.findById(id);
+        const query = User.findById(id);
+        if (session) query.session(session);
+        const dbUser = await query;
         if (dbUser) return dbUser;
       } catch (err) {}
     }

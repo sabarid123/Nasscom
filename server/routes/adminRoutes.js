@@ -14,5 +14,6 @@ router.delete('/users/:id', adminController.deleteUser);
 router.get('/transactions', adminController.getAllTransactions);
 router.delete('/transactions/:id', adminController.deleteTransaction);
 router.get('/reports/export-transactions', adminController.exportTransactionsCSV);
+router.get('/reports/export-users', adminController.exportUsersCSV);
 
 module.exports = router;

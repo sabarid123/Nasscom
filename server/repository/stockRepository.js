@@ -342,10 +342,12 @@ class StockRepository {
     return memoryStocks.find((s) => s.symbol.toUpperCase() === symbol.toUpperCase()) || null;
   }
 
-  async findById(id) {
+  async findById(id, session = null) {
     if (mongoose.connection.readyState === 1) {
       try {
-        const s = await Stock.findById(id);
+        const query = Stock.findById(id);
+        if (session) query.session(session);
+        const s = await query;
         if (s) return s;
       } catch (err) {}
     }

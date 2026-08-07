@@ -36,7 +36,7 @@ const AdminTransactions = () => {
   const handleDeleteRecord = async (id) => {
     if (!window.confirm('Delete this system transaction record?')) return;
     try {
-      await adminService.deleteUser(id); // call endpoint
+      await adminService.deleteTransaction(id);
       fetchTransactions();
       addToast('info', 'Deleted', 'Record removed');
     } catch (err) {

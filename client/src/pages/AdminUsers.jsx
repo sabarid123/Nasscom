@@ -61,13 +61,23 @@ const AdminUsers = () => {
     }
   };
 
+  const handleExportCSV = () => {
+    window.open('/api/v1/admin/reports/export-users', '_blank');
+    addToast('success', 'Exporting CSV', 'Downloading system users report...');
+  };
+
   return (
     <div>
-      <div className="glass-card p-4 mb-4">
-        <h3 className="fw-bold text-light mb-1">
-          <i className="bi bi-people me-2 text-primary"></i> User Management
-        </h3>
-        <p className="text-muted mb-0">Suspend, promote, or remove platform users.</p>
+      <div className="glass-card p-4 mb-4 d-flex justify-content-between align-items-center flex-wrap gap-3">
+        <div>
+          <h3 className="fw-bold text-light mb-1">
+            <i className="bi bi-people me-2 text-primary"></i> User Management
+          </h3>
+          <p className="text-muted mb-0">Manage roles, suspend accounts, and export user data files.</p>
+        </div>
+        <button className="btn btn-outline-success" onClick={handleExportCSV}>
+          <i className="bi bi-download me-2"></i> Export Users CSV File
+        </button>
       </div>
 
       <div className="glass-card p-4">

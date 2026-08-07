@@ -19,3 +19,11 @@ export const deleteUser = async (id) => {
 export const getAllTransactions = async (page = 1, limit = 10) => {
   return await api.get(`/admin/transactions?page=${page}&limit=${limit}`);
 };
+
+export const deleteTransaction = async (id) => {
+  return await api.delete(`/admin/transactions/${id}`);
+};
+
+export const exportUsersCSV = async () => {
+  return await api.get('/admin/reports/export-users', { responseType: 'blob' });
+};

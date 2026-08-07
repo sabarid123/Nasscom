@@ -10,7 +10,8 @@ export const SocketProvider = ({ children }) => {
   const { user } = useContext(AuthContext);
 
   useEffect(() => {
-    const newSocket = io(import.meta.env.VITE_SOCKET_URL || 'http://localhost:5000', {
+    const socketUrl = import.meta.env.VITE_SOCKET_URL || (window.location.port === '5173' ? 'http://localhost:5000' : window.location.origin);
+    const newSocket = io(socketUrl, {
       withCredentials: true,
     });
 
