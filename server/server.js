@@ -38,7 +38,12 @@ if (process.env.NODE_ENV !== 'test') {
 
 // Global Middlewares
 app.use(helmet({ contentSecurityPolicy: false }));
-const allowedOrigins = [process.env.CLIENT_URL, 'http://localhost:5173', 'http://localhost:5174'].filter(Boolean);
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  'https://nasscom-7t0v.onrender.com',
+  'http://localhost:5173',
+  'http://localhost:5174',
+].filter(Boolean);
 app.use(
   cors({
     origin: (origin, callback) => {

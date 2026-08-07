@@ -1,6 +1,10 @@
 # Production-Ready Full-Stack MERN Stock Trading Platform
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-brightgreen?style=for-the-badge&logo=render)](https://nasscom-7t0v.onrender.com)
+
 A complete, production-grade Stock Trading Platform built with Node.js v22, Express.js, MongoDB, Socket.IO, React 19, Vite, Bootstrap 5, and Chart.js.
+
+🌐 **Live Render Deployment URL**: [https://nasscom-7t0v.onrender.com](https://nasscom-7t0v.onrender.com)
 
 Designed after Zerodha, Groww, Robinhood, TradingView, and Upstox.
 
