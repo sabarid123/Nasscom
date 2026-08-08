@@ -4,7 +4,7 @@ const userRepository = require('../repository/userRepository');
 class PortfolioService {
   async getUserPortfolioSummary(userId) {
     const user = await userRepository.findById(userId);
-    const portfolio = await portfolioRepository.findByUserId(userId);
+    const portfolio = await portfolioRepository.findEnrichedByUserId(userId);
 
     let totalInvested = 0;
     let totalCurrentValue = 0;

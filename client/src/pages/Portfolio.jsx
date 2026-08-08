@@ -71,15 +71,33 @@ const Portfolio = () => {
   }
 
   const {
-    walletBalance,
-    totalInvested,
-    totalCurrentValue,
-    totalProfitLoss,
-    totalProfitLossPercent,
-    todayChange,
-    totalNetWorth,
-    holdings = [],
+    walletBalance = 0,
+    totalInvested: initialInvested = 0,
+    holdings: initialHoldings = [],
   } = portfolio || {};
+
+  // Compute live updated holdings based on liveStockUpdates socket ticks
+  const holdings = initialHoldings.map((item) => {
+    const live = liveStockUpdates[item.symbol];
+    const curPrice = live ? live.currentPrice : item.currentPrice;
+    const curVal = Number((item.quantity * curPrice).toFixed(2));
+    const pnl = Number((curVal - item.invested).toFixed(2));
+    const pnlPct = item.invested > 0 ? Number(((pnl / item.invested) * 100).toFixed(2)) : 0;
+
+    return {
+      ...item,
+      currentPrice: curPrice,
+      currentValue: curVal,
+      profitLoss: pnl,
+      profitLossPercent: pnlPct,
+    };
+  });
+
+  const totalCurrentValue = holdings.reduce((sum, h) => sum + h.currentValue, 0);
+  const totalInvested = holdings.reduce((sum, h) => sum + h.invested, 0);
+  const totalProfitLoss = Number((totalCurrentValue - totalInvested).toFixed(2));
+  const totalProfitLossPercent = totalInvested > 0 ? Number(((totalProfitLoss / totalInvested) * 100).toFixed(2)) : 0;
+  const totalNetWorth = Number((walletBalance + totalCurrentValue).toFixed(2));
 
   const isProfit = totalProfitLoss >= 0;
 

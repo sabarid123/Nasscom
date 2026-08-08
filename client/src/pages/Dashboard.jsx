@@ -89,12 +89,18 @@ const Dashboard = () => {
                 setPage(1);
               }}
             >
-              <option value="" className="bg-dark">All Sectors</option>
-              <option value="Technology" className="bg-dark">Technology</option>
-              <option value="Financial Services" className="bg-dark">Financial Services</option>
-              <option value="Consumer Cyclical" className="bg-dark">Consumer Cyclical</option>
-              <option value="Automotive" className="bg-dark">Automotive</option>
-              <option value="Communication Services" className="bg-dark">Communication Services</option>
+              <option value="" className="bg-dark">All Sectors (40+ Companies)</option>
+              <option value="Technology" className="bg-dark">Technology & IT</option>
+              <option value="Financial Services" className="bg-dark">Banking & Financial Services</option>
+              <option value="Energy & Conglomerate" className="bg-dark">Energy & Conglomerate</option>
+              <option value="Energy & Power" className="bg-dark">Energy & Power</option>
+              <option value="Automotive" className="bg-dark">Automotive & EV</option>
+              <option value="Consumer Goods & FMCG" className="bg-dark">Consumer Goods & FMCG</option>
+              <option value="Healthcare & Pharma" className="bg-dark">Healthcare & Pharma</option>
+              <option value="Metals & Mining" className="bg-dark">Metals & Mining</option>
+              <option value="Telecommunication" className="bg-dark">Telecommunication</option>
+              <option value="Defense & Aerospace" className="bg-dark">Defense & Aerospace</option>
+              <option value="Infrastructure & Capital Goods" className="bg-dark">Infrastructure & Capital Goods</option>
             </select>
           </div>
 

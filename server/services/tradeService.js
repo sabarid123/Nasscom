@@ -22,24 +22,9 @@ class TradeService {
     }
 
     let session = null;
-    if (mongoose.connection.readyState === 1) {
-      try {
-        const topologyType = mongoose.connection.client?.topology?.description?.type;
-        if (topologyType === 'ReplicaSetWithPrimary' || topologyType === 'Sharded') {
-          session = await mongoose.startSession();
-          session.startTransaction();
-        }
-      } catch (e) {
-        if (session) {
-          try { session.endSession(); } catch (_) {}
-        }
-        session = null;
-      }
-    }
-
     try {
       // 1. Fetch user & stock
-      const user = await userRepository.findById(userId, session);
+      const user = await userRepository.findById(userId);
       if (!user) throw new ApiError(404, 'User not found');
 
       const stock = await stockRepository.findById(stockId, session);
@@ -51,7 +36,7 @@ class TradeService {
       if (user.walletBalance < totalCost) {
         throw new ApiError(
           400,
-          `Insufficient wallet balance. Required: $${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}, Available: $${user.walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}`
+          `Insufficient wallet balance. Required: ₹${totalCost.toLocaleString('en-IN', { minimumFractionDigits: 2 })}, Available: ₹${user.walletBalance.toLocaleString('en-IN', { minimumFractionDigits: 2 })}`
         );
       }
 
@@ -60,8 +45,9 @@ class TradeService {
       if (user.save) await user.save(session ? { session } : {});
 
       // 4. Update Portfolio Holdings
-      const portfolio = await portfolioRepository.findByUserId(userId);
-      let existingHolding = portfolio.holdings.find((h) => matchStockId(h.stockId, stockId));
+      const portfolio = await portfolioRepository.findByUserId(userId, session);
+      const holdings = (portfolio && portfolio.holdings) ? [...portfolio.holdings] : [];
+      let existingHolding = holdings.find((h) => matchStockId(h.stockId, stockId));
 
       if (existingHolding) {
         const existingQty = existingHolding.quantity;
@@ -74,14 +60,14 @@ class TradeService {
         existingHolding.quantity = newTotalQty;
         existingHolding.averagePrice = newAvgPrice;
       } else {
-        portfolio.holdings.push({
+        holdings.push({
           stockId: stock._id || stockId,
           quantity: qty,
           averagePrice: stock.currentPrice,
         });
       }
 
-      if (portfolio.save) await portfolio.save(session ? { session } : {});
+      await portfolioRepository.updateHoldings(userId, holdings, session);
 
       // 5. Create Transaction Record
       const transaction = await transactionRepository.create(
@@ -103,14 +89,14 @@ class TradeService {
       }
 
       // Real-time notifications & socket updates
-      const updatedPortfolio = await portfolioRepository.findByUserId(userId);
+      const updatedPortfolio = await portfolioRepository.findEnrichedByUserId(userId);
       emitPortfolioUpdate(userId, updatedPortfolio);
       emitTradeStatus(userId, { type: 'BUY', stockSymbol: stock.symbol, status: 'COMPLETED', totalCost });
 
       await notificationService.sendNotification(
         userId,
         `Bought ${qty} shares of ${stock.symbol}`,
-        `Successfully purchased ${qty} shares of ${stock.companyName} (${stock.symbol}) for $${totalCost.toLocaleString()}.`
+        `Successfully purchased ${qty} shares of ${stock.companyName} (${stock.symbol}) for ₹${totalCost.toLocaleString('en-IN')}.`
       );
 
       return { transaction, walletBalance: user.walletBalance };
@@ -156,14 +142,15 @@ class TradeService {
       const stock = await stockRepository.findById(stockId, session);
       if (!stock) throw new ApiError(404, 'Stock not found');
 
-      const portfolio = await portfolioRepository.findByUserId(userId);
-      const holdingIndex = portfolio.holdings.findIndex((h) => matchStockId(h.stockId, stockId));
+      const portfolio = await portfolioRepository.findByUserId(userId, session);
+      const holdings = (portfolio && portfolio.holdings) ? [...portfolio.holdings] : [];
+      const holdingIndex = holdings.findIndex((h) => matchStockId(h.stockId, stockId));
 
       if (holdingIndex === -1) {
         throw new ApiError(400, `You do not own any shares of ${stock.symbol} in your portfolio`);
       }
 
-      const holding = portfolio.holdings[holdingIndex];
+      const holding = holdings[holdingIndex];
       if (holding.quantity < qty) {
         throw new ApiError(
           400,
@@ -179,11 +166,11 @@ class TradeService {
 
       // 3. Update Portfolio Holdings
       if (holding.quantity === qty) {
-        portfolio.holdings.splice(holdingIndex, 1);
+        holdings.splice(holdingIndex, 1);
       } else {
         holding.quantity -= qty;
       }
-      if (portfolio.save) await portfolio.save(session ? { session } : {});
+      await portfolioRepository.updateHoldings(userId, holdings, session);
 
       // 4. Create Transaction Record
       const transaction = await transactionRepository.create(
@@ -205,14 +192,14 @@ class TradeService {
       }
 
       // Real-time notifications & socket updates
-      const updatedPortfolio = await portfolioRepository.findByUserId(userId);
+      const updatedPortfolio = await portfolioRepository.findEnrichedByUserId(userId);
       emitPortfolioUpdate(userId, updatedPortfolio);
       emitTradeStatus(userId, { type: 'SELL', stockSymbol: stock.symbol, status: 'COMPLETED', totalProceeds });
 
       await notificationService.sendNotification(
         userId,
         `Sold ${qty} shares of ${stock.symbol}`,
-        `Successfully sold ${qty} shares of ${stock.companyName} (${stock.symbol}) for $${totalProceeds.toLocaleString()}.`
+        `Successfully sold ${qty} shares of ${stock.companyName} (${stock.symbol}) for ₹${totalProceeds.toLocaleString('en-IN')}.`
       );
 
       return { transaction, walletBalance: user.walletBalance };

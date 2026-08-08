@@ -6,6 +6,7 @@ const { authorize } = require('../middlewares/roleMiddleware');
 const validate = require('../middlewares/validationMiddleware');
 const { createStockValidation } = require('../validations');
 
+router.get('/indices', stockController.getIndices);
 router.get('/', stockController.getStocks);
 router.get('/:id', stockController.getStockById);
 

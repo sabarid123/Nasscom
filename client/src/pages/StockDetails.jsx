@@ -171,7 +171,7 @@ const StockDetails = () => {
           </div>
 
           {/* Key Financial Indicators */}
-          <div className="glass-card p-4">
+          <div className="glass-card p-4 mb-4">
             <h5 className="fw-bold text-light mb-3">Market Fundamentals</h5>
             <div className="row g-3 text-center">
               <div className="col-6 col-md-3">
@@ -196,6 +196,53 @@ const StockDetails = () => {
                 <div className="p-3 bg-secondary bg-opacity-25 rounded border border-secondary">
                   <span className="text-muted d-block small">Market Cap</span>
                   <strong className="text-light">{stock.marketCap}</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Market Depth (5 Best Bids / 5 Best Asks) */}
+          <div className="glass-card p-4">
+            <h5 className="fw-bold text-light mb-3">Market Depth (Order Book)</h5>
+            <div className="row g-3">
+              <div className="col-md-6">
+                <div className="table-responsive">
+                  <table className="table table-dark table-sm align-middle text-center mb-0" style={{ fontSize: '0.82rem' }}>
+                    <thead>
+                      <tr className="text-success border-bottom border-secondary">
+                        <th>Bid Qty</th>
+                        <th>Bid Price (₹)</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[0.05, 0.10, 0.15, 0.20, 0.25].map((offset, i) => (
+                        <tr key={i}>
+                          <td className="text-muted">{(150 * (i + 1) * 3).toLocaleString('en-IN')}</td>
+                          <td className="text-success fw-bold">₹{(currentPrice - offset).toFixed(2)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              <div className="col-md-6">
+                <div className="table-responsive">
+                  <table className="table table-dark table-sm align-middle text-center mb-0" style={{ fontSize: '0.82rem' }}>
+                    <thead>
+                      <tr className="text-danger border-bottom border-secondary">
+                        <th>Ask Price (₹)</th>
+                        <th>Ask Qty</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[0.05, 0.10, 0.15, 0.20, 0.25].map((offset, i) => (
+                        <tr key={i}>
+                          <td className="text-danger fw-bold">₹{(currentPrice + offset).toFixed(2)}</td>
+                          <td className="text-muted">{(120 * (i + 1) * 2.5).toLocaleString('en-IN')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </div>

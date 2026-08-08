@@ -2,6 +2,16 @@ const stockService = require('../services/stockService');
 const ApiResponse = require('../utils/apiResponse');
 
 class StockController {
+  async getIndices(req, res, next) {
+    try {
+      const indexService = require('../services/indexService');
+      const indices = indexService.getIndices();
+      res.status(200).json(new ApiResponse(200, indices, 'Market indices retrieved'));
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async getStocks(req, res, next) {
     try {
       const result = await stockService.getStocks(req.query);

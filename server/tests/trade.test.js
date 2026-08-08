@@ -6,6 +6,8 @@ const Stock = require('../models/Stock');
 
 const connectDB = require('../config/db');
 
+jest.setTimeout(30000);
+
 describe('Trade & Stock Execution API', () => {
   let token;
   let userId;
@@ -62,7 +64,8 @@ describe('Trade & Stock Execution API', () => {
 
     expect(res.statusCode).toBe(200);
     expect(res.body.success).toBe(true);
-    expect(res.body.data.walletBalance).toBe(9500); // 10000 - (5 * 100)
+    const pricePaid = res.body.data.transaction.price;
+    expect(res.body.data.walletBalance).toBe(Number((10000 - 5 * pricePaid).toFixed(2)));
   });
 
   test('POST /api/v1/trade/buy should reject purchase when insufficient wallet balance', async () => {

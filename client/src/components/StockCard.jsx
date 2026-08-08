@@ -1,24 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { formatCurrency, formatPercent } from '../utils/formatters';
-import Modal from './Modal';
-import * as tradeService from '../services/tradeService';
-import * as portfolioService from '../services/portfolioService';
+import OrderModal from './OrderModal';
 import * as watchlistService from '../services/watchlistService';
 import { useAuth } from '../hooks/useAuth';
 import { useNotification } from '../hooks/useNotification';
 
 const StockCard = ({ stock, liveData, onTradeSuccess }) => {
-  const { user, updateUserProfile } = useAuth();
+  const { user } = useAuth();
   const { addToast } = useNotification();
   const [currentPrice, setCurrentPrice] = useState(stock.currentPrice);
   const [openPrice, setOpenPrice] = useState(stock.openPrice);
 
-  const [buyModalOpen, setBuyModalOpen] = useState(false);
-  const [sellModalOpen, setSellModalOpen] = useState(false);
-  const [tradeQuantity, setTradeQuantity] = useState(1);
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [ownedShares, setOwnedShares] = useState(0);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
+  const [initialTradeType, setInitialTradeType] = useState('BUY');
   const [isWatchlisted, setIsWatchlisted] = useState(false);
 
   useEffect(() => {
@@ -61,249 +56,102 @@ const StockCard = ({ stock, liveData, onTradeSuccess }) => {
     }
   }, [liveData, stock.symbol]);
 
-  useEffect(() => {
-    if (sellModalOpen) {
-      portfolioService
-        .getPortfolio()
-        .then((res) => {
-          const holdings = res.data?.holdings || [];
-          const match = holdings.find(
-            (h) =>
-              (h.stockId && (h.stockId._id ? h.stockId._id === stock._id : h.stockId === stock._id)) ||
-              h.symbol === stock.symbol
-          );
-          setOwnedShares(match ? match.quantity : 0);
-        })
-        .catch(() => setOwnedShares(0));
-    }
-  }, [sellModalOpen, stock._id, stock.symbol]);
-
   const change = currentPrice - openPrice;
   const changePercent = openPrice > 0 ? (change / openPrice) * 100 : 0;
   const isPositive = change >= 0;
 
-  const handleBuy = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    try {
-      const res = await tradeService.buyStock(stock._id, Number(tradeQuantity));
-      addToast('success', 'Purchase Successful', `Bought ${tradeQuantity} shares of ${stock.symbol}`);
-      updateUserProfile({ walletBalance: res.data.walletBalance });
-      setBuyModalOpen(false);
-      if (onTradeSuccess) onTradeSuccess();
-    } catch (err) {
-      addToast('danger', 'Purchase Failed', err.message || 'Could not complete order');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleSell = async (e) => {
-    e.preventDefault();
-    if (ownedShares <= 0) {
-      addToast('warning', 'No Holdings', `You do not own any shares of ${stock.symbol} to sell.`);
-      return;
-    }
-    setIsSubmitting(true);
-    try {
-      const res = await tradeService.sellStock(stock._id, Number(tradeQuantity));
-      addToast('success', 'Sell Order Executed', `Sold ${tradeQuantity} shares of ${stock.symbol}`);
-      updateUserProfile({ walletBalance: res.data.walletBalance });
-      setSellModalOpen(false);
-      if (onTradeSuccess) onTradeSuccess();
-    } catch (err) {
-      addToast('danger', 'Sell Order Failed', err.message || 'Could not complete order');
-    } finally {
-      setIsSubmitting(false);
-    }
+  const openOrder = (type) => {
+    setInitialTradeType(type);
+    setOrderModalOpen(true);
   };
 
   return (
     <>
-      <div className="glass-card p-4 h-100 d-flex flex-column justify-content-between">
+      <div className="glass-card p-3 h-100 d-flex flex-column justify-content-between border border-secondary border-opacity-25 hover-shadow">
         <div>
+          {/* Header Badge & Watchlist */}
           <div className="d-flex justify-content-between align-items-start mb-2">
-            <div>
-              <span className="badge bg-secondary mb-1">{stock.sector}</span>
-              <div className="d-flex align-items-center gap-2">
-                <h5 className="fw-bold mb-0">
-                  <Link to={`/stocks/${stock._id}`} className="text-decoration-none text-light">
+            <div className="d-flex align-items-center gap-2">
+              <div
+                className="rounded-circle bg-primary bg-opacity-25 text-primary fw-bold d-flex align-items-center justify-content-center"
+                style={{ width: '36px', height: '36px', fontSize: '0.85rem' }}
+              >
+                {stock.symbol.slice(0, 3)}
+              </div>
+              <div>
+                <h6 className="fw-bold mb-0">
+                  <Link to={`/stocks/${stock._id}`} className="text-decoration-none text-light hover-primary">
                     {stock.symbol}
                   </Link>
-                </h5>
-                <button
-                  type="button"
-                  className="btn btn-sm p-0 border-0 text-decoration-none"
-                  onClick={handleToggleWatchlist}
-                  title={isWatchlisted ? "Remove from watchlist" : "Add to watchlist"}
-                  style={{ background: 'transparent' }}
-                >
-                  <i className={`bi bi-star${isWatchlisted ? '-fill text-warning' : ' text-muted'}`}></i>
-                </button>
+                </h6>
+                <small className="text-muted d-block text-truncate" style={{ maxWidth: '130px' }}>
+                  {stock.companyName}
+                </small>
               </div>
-              <small className="text-muted d-block text-truncate" style={{ maxWidth: '180px' }}>
-                {stock.companyName}
-              </small>
+            </div>
+
+            <button
+              type="button"
+              className="btn btn-sm p-0 border-0"
+              onClick={handleToggleWatchlist}
+              title={isWatchlisted ? "Remove from watchlist" : "Add to watchlist"}
+              style={{ background: 'transparent' }}
+            >
+              <i className={`bi bi-bookmark-star${isWatchlisted ? '-fill text-warning' : ' text-muted'}`}></i>
+            </button>
+          </div>
+
+          {/* Price & Change Badge */}
+          <div className="d-flex justify-content-between align-items-end my-3">
+            <div>
+              <span className="text-muted small d-block">LTP (NSE)</span>
+              <h5 className="fw-bold text-light mb-0">{formatCurrency(currentPrice)}</h5>
             </div>
             <div className="text-end">
-              <h5 className="fw-bold mb-0">{formatCurrency(currentPrice)}</h5>
-              <span className={isPositive ? 'badge-gain' : 'badge-loss'}>
-                <i className={`bi bi-arrow-${isPositive ? 'up' : 'down'}-short`}></i>
+              <span className={`badge ${isPositive ? 'bg-success bg-opacity-25 text-success' : 'bg-danger bg-opacity-25 text-danger'} px-2 py-1`}>
+                <i className={`bi bi-arrow-${isPositive ? 'up' : 'down'}-short me-1`}></i>
                 {formatPercent(changePercent)}
               </span>
             </div>
           </div>
 
-          <div className="row text-center text-muted my-3 py-2 border-top border-bottom border-secondary g-0" style={{ fontSize: '0.85rem' }}>
+          {/* Day High / Low Bar */}
+          <div className="row text-center text-muted py-2 bg-dark bg-opacity-50 rounded g-0 mb-3" style={{ fontSize: '0.78rem' }}>
             <div className="col">
               <span className="d-block text-uppercase">High</span>
               <strong className="text-light">{formatCurrency(stock.high || currentPrice)}</strong>
             </div>
-            <div className="col">
+            <div className="col border-start border-secondary border-opacity-25">
               <span className="d-block text-uppercase">Low</span>
               <strong className="text-light">{formatCurrency(stock.low || currentPrice)}</strong>
             </div>
           </div>
         </div>
 
-        <div className="d-flex gap-2 mt-2">
+        {/* Quick Buy / Sell Buttons */}
+        <div className="d-flex gap-2">
           <button
-            className="btn btn-sm btn-success-gradient flex-grow-1"
-            onClick={() => setBuyModalOpen(true)}
+            className="btn btn-sm btn-success fw-bold flex-grow-1"
+            onClick={() => openOrder('BUY')}
           >
-            Buy
+            BUY
           </button>
           <button
-            className="btn btn-sm btn-danger-gradient flex-grow-1"
-            onClick={() => setSellModalOpen(true)}
+            className="btn btn-sm btn-danger fw-bold flex-grow-1"
+            onClick={() => openOrder('SELL')}
           >
-            Sell
+            SELL
           </button>
         </div>
       </div>
 
-      {/* Buy Stock Modal */}
-      <Modal isOpen={buyModalOpen} onClose={() => setBuyModalOpen(false)} title={`Buy ${stock.symbol}`}>
-        <form onSubmit={handleBuy}>
-          <div className="mb-3">
-            <label className="form-label text-muted">Company</label>
-            <div className="fw-bold">{stock.companyName} ({stock.symbol})</div>
-          </div>
-          <div className="mb-3">
-            <label className="form-label text-muted">Current Price</label>
-            <div className="fw-bold text-success-custom">{formatCurrency(currentPrice)}</div>
-          </div>
-          <div className="mb-3">
-            <label className="form-label text-muted">Quantity</label>
-            <input
-              type="number"
-              min="1"
-              className="form-control glass-input"
-              value={tradeQuantity}
-              onChange={(e) => setTradeQuantity(e.target.value)}
-              required
-            />
-          </div>
-          <div className="p-3 mb-3 rounded bg-secondary bg-opacity-25 border border-secondary">
-            <div className="d-flex justify-content-between mb-1">
-              <span>Total Cost:</span>
-              <strong className="text-light">{formatCurrency(currentPrice * Number(tradeQuantity))}</strong>
-            </div>
-            <div className="d-flex justify-content-between text-muted" style={{ fontSize: '0.85rem' }}>
-              <span>Available Cash:</span>
-              <span>{formatCurrency(user ? user.walletBalance : 0)}</span>
-            </div>
-          </div>
-          <div className="d-flex justify-content-end gap-2">
-            <button type="button" className="btn btn-secondary" onClick={() => setBuyModalOpen(false)}>
-              Cancel
-            </button>
-            <button type="submit" className="btn btn-success-gradient" disabled={isSubmitting}>
-              {isSubmitting ? 'Executing...' : 'Confirm Buy'}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Sell Stock Modal */}
-      <Modal isOpen={sellModalOpen} onClose={() => setSellModalOpen(false)} title={`Sell ${stock.symbol}`}>
-        <form onSubmit={handleSell}>
-          <div className="mb-3">
-            <label className="form-label text-muted">Company</label>
-            <div className="fw-bold">{stock.companyName} ({stock.symbol})</div>
-          </div>
-          <div className="mb-3">
-            <label className="form-label text-muted">Current Market Price</label>
-            <div className="fw-bold text-danger-custom">{formatCurrency(currentPrice)}</div>
-          </div>
-          <div className="mb-3">
-            <label className="form-label text-muted">Shares Currently Owned</label>
-            <div className={`fw-bold ${ownedShares > 0 ? 'text-success-custom' : 'text-warning'}`}>
-              {ownedShares} {ownedShares === 1 ? 'share' : 'shares'}
-            </div>
-          </div>
-
-          {ownedShares === 0 ? (
-            <div className="alert alert-warning py-2 px-3 mb-3 small d-flex align-items-center justify-content-between rounded">
-              <div>
-                <i className="bi bi-exclamation-triangle-fill me-2"></i>
-                You do not hold any shares of {stock.symbol} yet.
-              </div>
-              <button
-                type="button"
-                className="btn btn-sm btn-success ms-2 text-nowrap"
-                onClick={() => {
-                  setSellModalOpen(false);
-                  setBuyModalOpen(true);
-                }}
-              >
-                Buy Instead
-              </button>
-            </div>
-          ) : (
-            <div className="mb-3">
-              <label className="form-label text-muted">Quantity to Sell</label>
-              <input
-                type="number"
-                min="1"
-                max={ownedShares}
-                className="form-control glass-input"
-                value={tradeQuantity}
-                onChange={(e) => setTradeQuantity(e.target.value)}
-                required
-              />
-            </div>
-          )}
-
-          <div className="p-3 mb-3 rounded bg-secondary bg-opacity-25 border border-secondary">
-            <div className="d-flex justify-content-between mb-1">
-              <span>Estimated Proceeds:</span>
-              <strong className="text-light">{formatCurrency(currentPrice * Number(tradeQuantity))}</strong>
-            </div>
-          </div>
-          <div className="d-flex justify-content-end gap-2">
-            <button type="button" className="btn btn-secondary" onClick={() => setSellModalOpen(false)}>
-              Cancel
-            </button>
-            {ownedShares > 0 ? (
-              <button type="submit" className="btn btn-danger-gradient" disabled={isSubmitting}>
-                {isSubmitting ? 'Executing...' : 'Confirm Sell'}
-              </button>
-            ) : (
-              <button
-                type="button"
-                className="btn btn-success-gradient"
-                onClick={() => {
-                  setSellModalOpen(false);
-                  setBuyModalOpen(true);
-                }}
-              >
-                Buy {stock.symbol}
-              </button>
-            )}
-          </div>
-        </form>
-      </Modal>
+      <OrderModal
+        isOpen={orderModalOpen}
+        onClose={() => setOrderModalOpen(false)}
+        stock={{ ...stock, currentPrice, openPrice }}
+        initialType={initialTradeType}
+        onSuccess={onTradeSuccess}
+      />
     </>
   );
 };
