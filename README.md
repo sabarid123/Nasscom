@@ -2,15 +2,8 @@
 
 A next-generation, real-time Indian stock market paper trading, F&O options chain, and investment platform inspired by **Angel One** and **Groww**. Built with React, Vite, Node.js, Express, Socket.io, and MongoDB.
 
-[![Vercel Deployment](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://nasscom-stocktrade.vercel.app)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 [![Node.js Version](https://img.shields.io/badge/Node.js-v18+-green?style=for-the-badge&logo=nodedotjs)](https://nodejs.org/)
-
----
-
-## 🌐 Live Vercel Demo Link
-
-🔗 **Vercel Web App**: [https://nasscom-stocktrade.vercel.app](https://nasscom-stocktrade.vercel.app)
 
 ---
 
