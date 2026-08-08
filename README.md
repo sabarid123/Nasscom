@@ -9,6 +9,7 @@
 > [!IMPORTANT]
 > - ⚡ **Live Render Backend API**: [https://stocktrade-backend.onrender.com](https://stocktrade-backend.onrender.com)
 > - 📦 **GitHub Repository**: [https://github.com/sabarid123/Nasscom](https://github.com/sabarid123/Nasscom)
+> - 📁 **Project Documentation**: [https://drive.google.com/drive/folders/1z7AhqxIhjlWVp2_6LKseVn3Vqmax5sWQ?usp=sharing](https://drive.google.com/drive/folders/1z7AhqxIhjlWVp2_6LKseVn3Vqmax5sWQ?usp=sharing)
 > - 🔑 **Pre-configured User Accounts**:
 >   - **Trader Email**: `user@stocktrade.com` | **Password**: `UserPassword123!` (Balance: **₹5,00,000**)
 >   - **Admin Email**: `admin@stocktrade.com` | **Password**: `AdminPassword123!` (Balance: **₹1,00,000,000**)
@@ -222,6 +223,7 @@ npm run dev
 ## 🔗 DEMO & EVALUATION LINKS SUMMARY
 
 - **GitHub Repository**: [https://github.com/sabarid123/Nasscom](https://github.com/sabarid123/Nasscom)
+- **Project Documentation**: [https://drive.google.com/drive/folders/1z7AhqxIhjlWVp2_6LKseVn3Vqmax5sWQ?usp=sharing](https://drive.google.com/drive/folders/1z7AhqxIhjlWVp2_6LKseVn3Vqmax5sWQ?usp=sharing)
 - **Live Render Backend API**: [https://stocktrade-backend.onrender.com](https://stocktrade-backend.onrender.com)
 - **Trader User Email**: `user@stocktrade.com` | **Password**: `UserPassword123!`
 - **Admin User Email**: `admin@stocktrade.com` | **Password**: `AdminPassword123!`
